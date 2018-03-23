@@ -1,15 +1,34 @@
-const fileOperation = require('../functions/fileJobs')
+const fileOperation = require('src/functions/fileJobs')
 const express = require('express')
 const app = express()
-const port = process.env.PORT || 5000
+
+
+const port = process.env.PORT || 8000
 const router = express.Router()
 const bodyParser = require('body-parser')
-const cors = require('cors')
 
-app.use(cors({ origin: 'http://localhost:8000' }))
+
+const webpack = require('webpack');
+const middleware = require('webpack-dev-middleware'); //webpack hot reloading middleware
+const webpackconfig = require ('index/config.js')
+
+const compiler = webpack(
+        context: __dirname + "/app",
+	entry: "./entry",
+	output: {
+		path: __dirname + "/dist",
+		filename: "bundle.js"
+	}
+
+
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use('/file', router)
+
+
+app.use(middleware(compiler, {
+  // webpack-dev-middleware options
+}));
 
 router.get('/read/:file/:current', function ({ params }, res) {
   res.json(fileOperation.ReadData(params.file, params.current))
